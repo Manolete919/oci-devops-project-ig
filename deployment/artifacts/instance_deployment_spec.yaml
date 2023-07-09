@@ -46,18 +46,6 @@ steps:
       echo JAVA_HOME is
       echo $JAVA_HOME
       java -version
-    onFailure:
-      - stepType: Command
-        timeoutInSeconds: 40
-        command: |
-          echo "Handling Failure"
-          echo "Failure successfully handled"
-        timeoutInSeconds: 400
-  
-  
-  - stepType: Command
-    name: Run the Application
-    command: |
       cd ~
       pid_count=`ps -fe |grep openshift-test-0.0.1-SNAPSHOT.jar | grep -v grep | wc -l`
       pid=`ps -fe |grep openshift-test-0.0.1-SNAPSHOT.jar | grep -v grep |awk '{print $2}'`
@@ -65,14 +53,13 @@ steps:
       export OCI_CLI_AUTH=instance_principal
       export PATH=$PATH:~/.local/bin/
       oci artifacts generic artifact download-by-path --repository-id ${ARTIFACT_REPO_OCID} --artifact-path ${ARTIFACT_NAME} --artifact-version ${APPLICATION_VERSION} --file openshift-test-0.0.1-SNAPSHOT.jar
-      sudo ls -ltr
+      echo donde estoy `ls -ltr` 
       echo version java `java --version`
       echo quien soy `whoami`
       sudo firewall-cmd --permanent --zone=public --add-service=http
       sudo firewall-cmd --permanent --zone=public --add-port=8090/tcp
       sudo systemctl restart firewalld
       sudo java -jar openshift-test-0.0.1-SNAPSHOT.jar
-
     timeoutInSeconds: 5000
     shell: bash
     onFailure:
