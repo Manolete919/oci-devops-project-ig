@@ -26,36 +26,18 @@ steps:
           echo "Handling the failure"
         timeoutInSeconds: 400
   - type: Command
-    name: "Generate the image"
+    name: "Generate the application JAR"
     timeoutInSeconds: 60
     command: |
       cd ${OCI_PRIMARY_SOURCE_DIR}/
       echo Running docker update - Working in `pwd`
-      docker build  --tag oci-devops-project:latest --file Dockerfile . 
-      echo images are
-      docker images 
-      
-  - type: Command
-    timeoutInSeconds: 1200
-    name: "Helm Build"
-    command: |
-      cd ${OCI_PRIMARY_SOURCE_DIR}/helm/devops-hm
-      originalChartfile="Chart.yaml"
-      tmpChartfile=$(mktemp)
-      cp --attributes-only --preserve $originalChartfile $tmpChartfile
-      cat $originalChartfile | envsubst > $tmpChartfile && mv $tmpChartfile $originalChartfile
-      cat Chart.yaml
-      cat templates/deployment.yaml
-      helm package .
-      helm registry login ${HELM_REPO} -u ${HELM_REPO_USER} -p ${USER_AUTH_TOKEN}
-      echo `helm version`
-      echo push to ${HELM_REPO_URL}
-      helm push devops-hm-0.1.0-$APPLICATION_VERSION.tgz ${HELM_REPO_URL}
-      
+      mvn clean
+      mvn package
+         
 outputArtifacts:
-  - name: oci_devops_project_image
-    type: DOCKER_IMAGE
-    location: oci-devops-project:latest
-  - name: deployment_yaml
+  - name: app_jar_output
     type: BINARY
-    location: ${OCI_PRIMARY_SOURCE_DIR}/deployment/artifacts/project-deployment.yaml
+    location: ${OCI_PRIMARY_SOURCE_DIR}/target/openshift-test-0.0.1-SNAPSHOT.jar
+  - name: deployment_spec
+    type: BINARY
+    location: ${OCI_PRIMARY_SOURCE_DIR}/instance_deployment_spec.yaml
