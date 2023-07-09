@@ -18,7 +18,6 @@ steps:
     command: |
       cd ~
       python3 -m pip install --user oci-cli
-    runAs: opc
     timeoutInSeconds: 5000
     shell: bash
     onFailure:
@@ -27,7 +26,21 @@ steps:
         timeoutInSeconds: 1200
         command: |
           echo "Handled failure"
- 
+  - stepType: Command
+    name: Stop currently-running application
+    command: |
+      pid_count=`ps -fe |grep openshift-test-0.0.1-SNAPSHOT.jar | grep -v grep | wc -l`
+      pid=`ps -fe |grep openshift-test-0.0.1-SNAPSHOT.jar | grep -v grep |awk '{print $2}'`
+      if [[ $pid_count == 1 ]]  ;then kill -9 $pid ; fi
+    timeoutInSeconds: 600
+  
+  - stepType: Command
+    name: Clean old version of source code in prod directory
+    command: |
+      echo "Perform suitable cleanup"
+      ls -ltr /tmp/
+    timeoutInSeconds: 600
+  
   - stepType: Command
     name: "Install local JDK17"
     timeoutInSeconds: 10000
@@ -47,20 +60,18 @@ steps:
       echo $JAVA_HOME
       java -version
       cd ~
-      pid_count=`ps -fe |grep openshift-test-0.0.1-SNAPSHOT.jar | grep -v grep | wc -l`
-      pid=`ps -fe |grep openshift-test-0.0.1-SNAPSHOT.jar | grep -v grep |awk '{print $2}'`
-      if [[ $pid_count == 1 ]]  ;then kill -9 $pid ; fi
       export OCI_CLI_AUTH=instance_principal
       export PATH=$PATH:~/.local/bin/
       oci artifacts generic artifact download-by-path --repository-id ${ARTIFACT_REPO_OCID} --artifact-path ${ARTIFACT_NAME} --artifact-version ${APPLICATION_VERSION} --file openshift-test-0.0.1-SNAPSHOT.jar
-      echo donde estoy `ls -ltr` 
+      echo donde estoy `pwd`
+      echo que tengo
+      ls -ltr 
       echo version java `java --version`
       echo quien soy `whoami`
       sudo firewall-cmd --permanent --zone=public --add-service=http
       sudo firewall-cmd --permanent --zone=public --add-port=8090/tcp
       sudo systemctl restart firewalld
       sudo java -jar openshift-test-0.0.1-SNAPSHOT.jar
-    runAs: opc
     timeoutInSeconds: 5000
     shell: bash
     onFailure:
