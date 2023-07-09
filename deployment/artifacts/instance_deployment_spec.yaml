@@ -18,7 +18,7 @@ steps:
     command: |
       cd ~
       python3 -m pip install --user oci-cli
-    runAs: oci
+    runAs: opc
     timeoutInSeconds: 5000
     shell: bash
     onFailure:
@@ -60,7 +60,7 @@ steps:
       sudo firewall-cmd --permanent --zone=public --add-port=8090/tcp
       sudo systemctl restart firewalld
       sudo java -jar openshift-test-0.0.1-SNAPSHOT.jar
-    runAs: oci
+    runAs: opc
     timeoutInSeconds: 5000
     shell: bash
     onFailure:
