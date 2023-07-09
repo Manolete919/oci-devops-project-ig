@@ -38,10 +38,13 @@ steps:
       export OCI_CLI_AUTH=instance_principal
       export PATH=$PATH:~/.local/bin/
       oci artifacts generic artifact download-by-path --repository-id ${ARTIFACT_REPO_OCID} --artifact-path ${ARTIFACT_NAME} --artifact-version ${APPLICATION_VERSION} --file openshift-test-0.0.1-SNAPSHOT.jar
+      sudo ls -ltr
+      echo version java `java --version`
+      echo quien soy `whoami`
       sudo firewall-cmd --permanent --zone=public --add-service=http
       sudo firewall-cmd --permanent --zone=public --add-port=8090/tcp
       sudo systemctl restart firewalld
-      java -jar openshift-test-0.0.1-SNAPSHOT.jar
+      sudo java -jar openshift-test-0.0.1-SNAPSHOT.jar
 
     timeoutInSeconds: 5000
     shell: bash
