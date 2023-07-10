@@ -10,7 +10,7 @@ public class Controller {
 	@GetMapping(value = "/hello/{name}", produces = { "application/json" })
 	public String hello(@PathVariable String name) {
 
-		return "Instance Group Successfully Deploy, thanks to " + name;
+		return "New Version: Instance Group Successfully Deploy, thanks to " + name;
 
 	}
 
